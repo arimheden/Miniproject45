@@ -79,8 +79,6 @@ public class MobilePhone : Asset
         currentId++;
         this.Id = currentId;
 
-        Console.WriteLine("Price = "+PriceLocal);
-
         if (Office == "USA") this.PriceUSD = PriceLocal;
         else if (Office == "Sweden") this.PriceUSD = LiveCurrency.Convert(PriceLocal, "USD", "SEK");
         else if (Office == "Germany") this.PriceUSD = LiveCurrency.Convert(PriceLocal, "USD", "EUR");

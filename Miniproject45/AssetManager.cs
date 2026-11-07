@@ -296,7 +296,7 @@ internal class AssetManager
         }
     }
 
-    // Search products by category or name
+    // Search assets by category or model
     public void SearchAssets(List<Asset> assets)
     {
         Console.Write("Search Asset: ");
@@ -309,17 +309,18 @@ internal class AssetManager
         Console.WriteLine();
 
         var assetQuery = from asset in assets where asset.AssetType.ToLower().Contains(searchString.ToLower())
-                        || asset.Model.ToLower().Contains(searchString.ToLower()) select asset;
+                        || asset.Model.ToLower().Contains(searchString.ToLower())
+                        || asset.Brand.ToLower().Contains(searchString.ToLower()) select asset;
 
         foreach (Asset asset in assetQuery) 
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine(asset.AssetType.PadRight(12) + " | " + asset.Model.PadRight(12) + " | " + asset.PriceUSD.ToString().PadRight(12));
+            Console.WriteLine(asset.Office.PadRight(12) + " | " + asset.AssetType.PadRight(12) + " | " + asset.Brand.PadRight(12) + " | " + asset.Model.PadRight(12) + " | " + asset.PriceLocal.ToString("F").PadRight(12) + " | " + asset.PurchaseDate.ToString("yyyy/MM/dd").PadRight(12));
             Console.ForegroundColor = ConsoleColor.Gray;
         }
     }
 
-    // Delete asset by Id
+    // Delete asset
     public void DeleteAsset(ref List<Asset> assets)
     {
 
@@ -331,16 +332,11 @@ internal class AssetManager
         // Validate user input
         try
         {
-            this.validateInput(deleteString, "id");
-            if (assets.Any(asset => asset.Id == Convert.ToInt32(deleteString)))
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Asset has been removed!");
-                Console.ForegroundColor = ConsoleColor.Gray;
-                assets.RemoveAll(asset => asset.Id.Equals(Convert.ToInt32(deleteString)));
-            }
-            else throw new ArgumentException("Asset does not exist!");
-
+            this.validateInput(deleteString, "model");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Asset has been removed!");
+            Console.ForegroundColor = ConsoleColor.Gray;
+            assets.RemoveAll(asset => asset.Model.Contains(deleteString));
         }
         catch (Exception e)
         {
