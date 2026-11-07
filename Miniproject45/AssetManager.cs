@@ -263,9 +263,9 @@ internal class AssetManager
             if (inputLine > 6)
             {
                 inputLine = 1;
-                if (assetType == 1) assets.Add(new Computer(brand, model, assetDate, assetPrice, office));
-                else if (assetType == 2) assets.Add(new Laptop(brand, model, assetDate, assetPrice, office));
-                else if (assetType == 3) assets.Add(new MobilePhone(brand, model, assetDate, assetPrice, office));
+                if (assetType == 1) assets.Add(new Computer(0, brand, model, assetDate, 0, assetPrice, office));
+                else if (assetType == 2) assets.Add(new Laptop(0, brand, model, assetDate, 0, assetPrice, office));
+                else if (assetType == 3) assets.Add(new MobilePhone(0, brand, model, assetDate, 0, assetPrice, office));
                 Console.WriteLine();
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Asset has been added!");
@@ -278,57 +278,20 @@ internal class AssetManager
 
     }
 
-    // Show statistics
-    public void AssetStatistics(ref List<Asset> assets)
-    {
-        Console.WriteLine("========= STATISTICS =========");
-        Console.WriteLine();
-
-        if (assets.Count() > 0) {
-            Asset expensiveProduct = assets.OrderByDescending(a => a.PriceUSD).First();
-            Asset cheapProduct = assets.OrderBy(a => a.PriceUSD).First();
-            double average = assets.Average(a => a.PriceUSD);
-
-            Console.WriteLine("Most Expensive Product:");
-            Console.WriteLine();
-
-            Console.WriteLine(expensiveProduct.Model + " - " + expensiveProduct.PriceUSD);
-
-            Console.WriteLine("Cheapest Product:");
-
-            Console.WriteLine(cheapProduct.Model + " - " + cheapProduct.PriceUSD);
-            Console.WriteLine();
-
-            Console.WriteLine("Average Price:");
-
-            Console.WriteLine(average + " kr");
-            Console.WriteLine();
-
-            Console.WriteLine("Assets per Category:");
-            var categories = assets.DistinctBy(a => a.AssetType);
-            foreach (var category in categories) {
-                Console.Write(category.AssetType + ": ");
-                decimal categorySum = assets.Where(a => a.AssetType.Equals(category.AssetType)).Count();
-                Console.WriteLine(categorySum);
-            }
-
-        }
-    }
-
-    // Sort and show products
+    // Sort and show assets
     public void ShowAssets(List<Asset> assets)
     {
         Console.WriteLine();
         Console.WriteLine("ASSET LIST");
-        Console.WriteLine("----------------------------------------------------------------------------------------------------------------------------------------");
+        Console.WriteLine("---------------------------------------------------------------------------------------------------------------------------------");
         Console.WriteLine("Office".PadRight(10)+" | "+"Type".PadRight(18)+" | "+"Brand".PadRight(18)+" | "+"Model".PadRight(18)+" | " + "Price (USD)".PadRight(15) + " | " + "Price (Local)".PadRight(15) + " | " + "Purchase Date".PadRight(15));
-        Console.WriteLine("----------------------------------------------------------------------------------------------------------------------------------------");
+        Console.WriteLine("---------------------------------------------------------------------------------------------------------------------------------");
         foreach (Asset asset in assets.OrderBy(asset => asset.AssetType).ThenBy(asset => asset.PurchaseDate))
         {
             TimeSpan assetAge = DateTime.Now - asset.PurchaseDate;
             if (assetAge.Days  >= 1275) Console.ForegroundColor = ConsoleColor.Red;
             else if (assetAge.Days >= 1185) Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(asset.Office.PadRight(10) + " | " + asset.AssetType.PadRight(18) + " | " + asset.Brand.PadRight(18) + " | " + asset.Model.PadRight(18) + " | " + asset.PriceUSD.ToString("F").PadRight(15) + " | " + asset.PriceLocal.ToString("F").PadRight(15) + " | " + asset.PurchaseDate.ToString().PadRight(15));
+            Console.WriteLine(asset.Office.PadRight(10) + " | " + asset.AssetType.PadRight(18) + " | " + asset.Brand.PadRight(18) + " | " + asset.Model.PadRight(18) + " | " + asset.PriceUSD.ToString("F").PadRight(15) + " | " + asset.PriceLocal.ToString("F").PadRight(15) + " | " + asset.PurchaseDate.ToString("yyyy/MM/dd").PadRight(15));
             Console.ForegroundColor = ConsoleColor.Gray;
         }
     }
@@ -387,98 +350,15 @@ internal class AssetManager
         }
     }
 
-    // Edit asset by Id
-    public void EditAsset(ref List<Asset> assets)
-    {
-
-        Console.Write("Edit Asset: ");
-
-        // Request user input
-        string editString = this.userInput();
-
-        // Validate user input
-        try
-        {
-            this.validateInput(editString, "id");
-            if (assets.Any(asset => asset.Id == Convert.ToInt32(editString)))
-            {
-                Console.Write("Enter new category (blank to keep existing): ");
-                string newCategory = this.userInput();
-                if (!String.IsNullOrEmpty(newCategory))
-                {
-                    this.validateInput(newCategory, "category");
-                    try
-                    {
-                        foreach (Asset asset in assets.Where(w => w.Id == Convert.ToInt32(editString)))
-                        {
-                            asset.AssetType = newCategory;
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine(e.Message);
-                        Console.ForegroundColor = ConsoleColor.Gray;
-                    }
-                }
-
-                Console.Write("Enter new name (blank to keep existing): ");
-                string newName = this.userInput();
-                if (!String.IsNullOrEmpty(newName))
-                {
-                    this.validateInput(newName, "name");
-                    try
-                    {
-                        foreach (Asset asset in assets.Where(w => w.Id == Convert.ToInt32(editString)))
-                        {
-                            asset.Model = newName;
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine(e.Message);
-                        Console.ForegroundColor = ConsoleColor.Gray;
-                    }
-                }
-                    
-                Console.Write("Enter new price (blank to keep existing): ");
-                string userInput = this.userInput();
-                if (!String.IsNullOrEmpty(userInput))
-                {
-                    this.validateInput(userInput, "price");
-                    try
-                    {
-                        double newPrice = Convert.ToDouble(userInput);
-                        foreach (Asset asset in assets.Where(w => w.Id == Convert.ToInt32(editString)))
-                        {
-                            asset.PriceUSD = newPrice;
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine(e.Message);
-                        Console.ForegroundColor = ConsoleColor.Gray;
-                    }
-                }
-            }
-            else throw new ArgumentException("Asset does not exist!");
-
-        }
-        catch (Exception e)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(e.Message);
-            Console.ForegroundColor = ConsoleColor.Gray;
-        }
-    }
-
     // Save products to json file
     public void SaveAssets(List<Asset> assets)
     {
+        JsonSerializerOptions options = new JsonSerializerOptions
+        {
+            WriteIndented = true
+        };
         StreamWriter sw = new StreamWriter("assets.json");
-        var jsonAssetList = JsonSerializer.Serialize(assets);
+        var jsonAssetList = JsonSerializer.Serialize(assets, options);
         sw.Write(jsonAssetList.ToString());
         sw.Close();
         Console.ForegroundColor = ConsoleColor.Green;
@@ -486,11 +366,15 @@ internal class AssetManager
         Console.ForegroundColor = ConsoleColor.Gray;
     }
 
-    // Save products to json file
+    // Load products from json file
     public void LoadAssets(ref List<Asset> assets)
     {
+        JsonSerializerOptions options = new JsonSerializerOptions
+        {
+            IncludeFields = true
+        };
         string json = File.ReadAllText("assets.json");
-        var jsonAssetList = JsonSerializer.Deserialize<List<Asset>>(json);
+        var jsonAssetList = JsonSerializer.Deserialize<List<Asset>>(json, options);
         assets = jsonAssetList;
         Asset.currentId = assets.Max(a => a.Id);
         Console.ForegroundColor = ConsoleColor.Green;
@@ -506,11 +390,8 @@ internal class AssetManager
         Console.WriteLine("2. View Assets");
         Console.WriteLine("3. Search Asset");
         Console.WriteLine("4. Delete Asset");
-        Console.WriteLine("5. Edit Asset");
-        Console.WriteLine("6. Statistics");
-        Console.WriteLine("7. Save Assets");
-        Console.WriteLine("8. Load Assets");
-        Console.WriteLine("9. Exit");
+        Console.WriteLine("5. Save Assets");
+        Console.WriteLine("6. Exit");
         Console.WriteLine();
 
         ConsoleKeyInfo keypressed;
@@ -520,7 +401,7 @@ internal class AssetManager
             keypressed = Console.ReadKey(true);
             numKey = keypressed.Key.ToString().Trim('D');
 
-        } while (!Regex.IsMatch(numKey, @"^[1-9]+\z"));
+        } while (!Regex.IsMatch(numKey, @"^[1-6]+\z"));
         return numKey;
     }
 }

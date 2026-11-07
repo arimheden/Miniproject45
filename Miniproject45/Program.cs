@@ -20,7 +20,10 @@ List<Asset> assets = new List<Asset>();
 // Initialize helper class'
 AssetManager assetManager = new AssetManager();
 
-while (true)
+// Load list from file
+if (File.Exists("assets.json")) assetManager.LoadAssets(ref assets);
+
+    while (true)
 {
 
     string menuOption = assetManager.AssetListMenu();
@@ -36,38 +39,23 @@ while (true)
             assetManager.ShowAssets(assets);
             break;
 
-        // Perform product search
+        // Perform asset search
         case "3":
             assetManager.SearchAssets(assets);
             break;
 
-        // Delete product from list
+        // Delete asset from list
         case "4":
             assetManager.DeleteAsset(ref assets);
             break;
 
-        // Edit product
+        // Save asset list and exit program
         case "5":
-            assetManager.EditAsset(ref assets);
-            break;
-
-        // Show statistics
-        case "6":
-            assetManager.AssetStatistics(ref assets);
-            break;
-
-        // Save product list and exit program
-        case "7":
             assetManager.SaveAssets(assets);
             break;
 
-        // Load product list and exit program
-        case "8":
-            assetManager.LoadAssets(ref assets);
-            break;
-
         // Exit program
-        case "9":
+        case "6":
             Environment.Exit(0);
             break;
     }
